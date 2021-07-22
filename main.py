@@ -14,20 +14,23 @@ def std_item_tbl(xx):
 
 def read_dataset(M, N):
     dataset = []
-    items = set()
     row = 0
     # col = 0
+    once = True
     with open('./dataset_chess.txt', 'r') as f:
         for line in f.readlines():
             # transaction = np.zeros(75)
             transaction = set()
             indexs = line.split()
             indexs = indexs[:N]
+
             for i in indexs:
                 transaction.add(std_item_tbl(i))
-                items.add(std_item_tbl(i))
+                if once:
+                    all_items.append(std_item_tbl(i))
+
+            once = False
             dataset.append(transaction)
-            all_items.extend(items)
             row += 1
             if row == M:
                 break
@@ -102,7 +105,7 @@ def add_extra_random_trans_in(extra_trans_num: int, items_num: int, trans_with_i
 
 # trans_database = [{},{},{}]
 def add_noisy_trans(trans_database):
-    phi = 1 / DM_SERVERS_NUMS
+    phi = 0 # 1 / DM_SERVERS_NUMS
     grouped_trans = []
 
     lambda_ = -1
@@ -144,10 +147,15 @@ def PET(cipher1, cipher2, private_key):
         B_2 = cipher2[1]
         temp1 = modexp(A_1, r_i, private_key.p)
         temp2 = modexp(A_2, r_i, private_key.p)
-        A_i = (temp1 / temp2) % private_key.p
+
+        A_i = temp1 * modexp(temp2, -1, private_key.p)
+        # A_i = (temp1 / temp2) % private_key.p
+
         temp1 = modexp(B_1, r_i, private_key.p)
         temp2 = modexp(B_2, r_i, private_key.p)
-        B_i = (temp1 / temp2) % private_key.p
+        B_i = temp1 * modexp(temp2, -1, private_key.p)
+        # B_i = (temp1 / temp2) % private_key.p
+
         A *= A_i
         B *= B_i
 
